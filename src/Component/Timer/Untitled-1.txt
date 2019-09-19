@@ -1,0 +1,497 @@
+import React, { Component } from 'react';
+import { Container, Row, Col } from 'react-grid-system';
+import './Timer.css';
+
+class Timer extends Component {
+
+
+    componentWillMount(){
+        this.handleInitialValue();
+    }
+
+    handleInitialValue=()=>{
+        this.setState({
+            buttonDisplay:{
+                showButton:false
+            },
+            startTime: {
+                userInput: null,
+                hour: 0,
+                min: 0,
+                sec: 0,
+                mode: '',
+                flag: false
+            },
+            endTime: {
+                userInput: null,
+                hour: 0,
+                min: 0,
+                sec: 0,
+                mode: '',
+                flag: false
+    
+            },
+            frontTimer: {
+                hour: 0,
+                min: 0,
+                sec: 0,
+                mode: '',
+                flag: true
+            },
+            
+            backGroundTimer: {
+                hour: 0,
+                min: 0,
+                sec: 0,
+                mode: ''
+            },
+    
+            startButton:{
+                value:"Start",
+                flag:false,
+                disabled: true
+            },
+            pauseButton:{
+                value:"Pause",
+                flag:false,
+                disabled: true
+            },
+            resumeButton:{
+                value:"Pause",
+                flag:false,
+                disabled: true
+            },
+            stopButton:{
+                value:"Stop",
+                flag:false,
+                disabled: true
+            },
+    
+        })
+    }
+
+    
+
+
+    //handle user Input Start Time
+
+
+    handleStartTime = (e) => {
+        let { startTime } = this.state;
+        let { hour, min, mode,  userInput } = startTime;
+
+
+
+        userInput= e.target.value
+        let str = userInput.toString();
+        let start_time = str.split(":");
+
+        
+
+       
+        hour = parseInt(start_time[0], 10);
+
+        min = parseInt(start_time[1], 10);
+
+        if (hour > 12) {
+            mode = 'PM';
+
+        }
+        else {
+            mode = 'AM';
+
+        }
+
+        this.setState({
+            startTime: {
+                ...startTime, userInput,  hour, min, mode, flag:true
+            }
+        })
+
+    
+      
+    }
+
+
+    
+
+
+    // handling End-Time 
+
+    handleEndtTime = (e) => {
+        let { endTime, startTime } = this.state;
+        let { userInput,hour, min, mode, flag } = endTime;
+
+        userInput = e.target.value;
+        let str = userInput.toString();
+        let end_time = str.split(":");
+
+
+        flag = true;
+        hour = parseInt(end_time[0], 10);
+
+        min = parseInt(end_time[1], 10);
+
+        if (hour > 12) {
+            mode = 'PM';
+
+        }
+        else {
+            mode = 'AM'
+        }
+
+    
+  
+
+
+        this.setState({
+            endTime: {
+                ...endTime,
+                 userInput, flag:true, hour, min, mode
+            },
+           
+           
+        })
+        
+        this.handleFirstPhaseStartButton( flag)
+    }
+// Enabling of start Button
+    
+    handleFirstPhaseStartButton=( endflag)=>{
+
+        debugger;
+        let { startButton, startTime } = this.state; 
+        let { value, flag, disabled}= {startButton};
+        let firstvalue = false;
+        if(startTime.hour>0 && startTime.flag==true){
+           firstvalue=true;
+           if(firstvalue== true && endflag == true) {
+            value= "Start";
+            flag=true;
+            disabled=false;
+        };
+        }
+       
+          this.setState({
+              startButton:{
+                  ...startButton, value, flag, disabled
+              }
+          }) 
+
+       
+        }
+
+
+    // set Time
+
+        setTime=()=>{
+       let {frontTimer,backGroundTimer, endTime}= this.state;
+       let {hour, min, sec}= frontTimer;
+
+
+ if(endTime.hour> backGroundTimer.hour || endTime === backGroundTimer.hour && endTime.min> backGroundTimer.min){
+     backGroundTimer.sec = backGroundTimer.sec+1;
+     if(backGroundTimer.sec> 59){
+         backGroundTimer.min= backGroundTimer.min+1;
+         backGroundTimer.sec=0;
+         backGroundTimer.sec = backGroundTimer.sec+1;
+     }
+
+     if(backGroundTimer.min> 59){
+         backGroundTimer.hour=backGroundTimer.hour+1;
+         backGroundTimer.min=0;
+         backGroundTimer.min= backGroundTimer+1;
+     }
+     
+     if(frontTimer.flag===true){
+        frontTimer.min= backGroundTimer.min;
+        frontTimer.sec= backGroundTimer.sec;
+        frontTimer.hour= backGroundTimer.hour;
+     }
+
+     this.setState({
+         
+        backGroundTimer:{
+            ...backGroundTimer
+        },
+        frontTimer:{
+         ...frontTimer
+     }
+    })
+    
+
+ }
+ else{
+     frontTimer.flag= false;
+
+     frontTimer.hour= backGroundTimer.hour;
+     frontTimer.min= backGroundTimer.min;
+     frontTimer.sec= backGroundTimer.sec;
+
+     this.setState({
+         frontTimer:{
+             ...frontTimer
+         },
+         startTime:{
+            userInput: null,
+            hour: 0,
+            min: 0,
+            sec: 0,
+            mode: '',
+            flag: false
+         },
+         endTime: {
+            userInput: null,
+            hour: 0,
+            min: 0,
+            sec: 0,
+            mode: '',
+            flag: false
+
+        },
+        startButton:{
+            value:"Start",
+            flag:false,
+            disabled: true
+        },
+        resumeButton:{
+            value:"Pause",
+            flag:false,
+            disabled: true
+        },
+        stopButton:{
+            value:"Stop",
+            flag:false,
+            disabled: true
+        },
+
+        
+
+     })
+ }
+
+
+
+
+
+   
+
+
+       
+
+        }
+
+//handling pause
+
+handlePauseTimer=()=>{
+    let {pauseButton,  resumeButton, frontTimer} = this.state;
+
+
+    let {flag} = {frontTimer};
+    pauseButton.flag= false;
+
+    resumeButton.flag = true;
+    
+    //     const {hour, min, sec} = backGroundTimer;
+
+    //     frontTimer.hour = hour;
+    //     frontTimer.min = min;
+    //     frontTimer.sec= sec;
+        
+  
+    // let {flag, disabled}= pauseButton 
+    // if(startButton.flag=== true){
+    //   flag = true;
+    //   disabled= false;
+    //   startButton.disabled=true;
+    //   resumeButton.disabled=true;
+    // }
+    this.setState({
+        frontTimer:{
+            ...frontTimer, flag
+                   },
+        pauseButton:{
+            ...pauseButton
+        }, 
+        
+        resumeButton:{
+            ...resumeButton
+        }
+    })
+    
+   }
+
+
+   // handle Resume 
+       
+handleResume=()=>{
+    let {resumeButton, pauseButton, startButton, frontTimer} = this.state;
+     frontTimer.flag= true;
+     pauseButton.flag=true;
+     resumeButton.flag=true;
+     
+
+    this.setState({
+        frontTimer:{
+            ...frontTimer
+        },
+        resumeButton:{
+            ...resumeButton
+        },
+        pauseButton:{
+            ...pauseButton
+        }
+       
+    })
+}
+
+handleResetValue=()=>{
+    this.initialValues();
+    window.location.reload();
+}
+
+handleTimer=()=>{
+    let {handleStartTimer, handlePauseTimer, handleResume} = this;
+    let {startButton, pauseButton, resumeButton}= this.state;
+
+    if(startButton.flag===true){
+        handleStartTimer();
+    }
+    else if(pauseButton.flag === true){
+        handlePauseTimer();
+    }
+    else{
+        handleResume();
+    }
+}
+
+
+
+
+   
+    //handling  First click of start Button 
+
+    handleStartTimer = () => {
+        let { frontTimer, startTime, startButton, resumeButton, backGroundTimer } = this.state;
+        let { hour, min, flag } = frontTimer;
+        const disableStart=true;
+        
+            hour = startTime.hour;
+            min = startTime.min;
+            flag = true;
+
+            backGroundTimer.hour= startTime.hour;
+            backGroundTimer.min= startTime.min;
+            backGroundTimer.flag =true;
+   
+   resumeButton.disabled=true;
+    
+        
+
+        this.setState({
+            frontTimer: {
+                ...frontTimer,
+                hour, min,flag
+            },
+            backGroundTimer:{
+   ...backGroundTimer
+            },
+            startButton:{
+                ...startButton, flag:disableStart
+            }, 
+            resumeButton:{
+                ...resumeButton
+            }
+        })
+       
+        setInterval(() => {
+            this.setTime(); 
+            
+        }, 1000);
+        
+    }
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    render() {
+
+        let { startTime, endTime, frontTimer, backGroundTimer, handlePauseTimer } = this.state
+        const { handleStartTime, handleEndtTime,  handleTimer } = this
+        
+        return (
+
+            <React.Fragment>
+                <Container>
+                    <Row>
+                        <Col sm={2}></Col>
+                        <Col m={8}>
+                            Timer
+                        <div className='circle'>
+                                <span style={{ marginTop: '50%' }}>
+                                    <hr />
+
+                                    {/* Start Time */}
+
+                                    <label style={{ marginLeft: '40%', marginTop: '30%' }}>Start Time</label>
+                                    <input type='time' name='start_time' value={startTime.userInput} onChange={(e) => { handleStartTime(e) }} /><span>{startTime.mode}</span>
+                                    <br /><br /><br />
+
+                                    {/* End Time */}
+
+                                    <label style={{ marginLeft: '40%' }}  >End Time</label>
+                                    <input type='time' name='start_time' value={endTime.userInput} onChange={(e) => { handleEndtTime(e) }} /><span>{startTime.mode}</span>
+                                    <br /><br /><br />
+
+
+
+                                    {/* Front-Timer */}
+
+
+                                    <label style={{ marginLeft: '40%' }} > Timer</label>
+                                    <span style={{ borderStyle: 'inset', backgroundColor: 'white', color: 'black', marginLeft: '2%'  }} name='timer'>
+                                        <span>{frontTimer.hour}:</span>
+                                        <span>{frontTimer.min}:</span>
+                                        <span>{frontTimer.sec}</span>
+                                    </span>
+
+                                    <span style={{ borderStyle: 'inset', backgroundColor: 'white', color: 'black', marginLeft: '2%'  }} name='timer'>
+                                        <span>{backGroundTimer.hour}:</span>
+                                        <span>{backGroundTimer.min}:</span>
+                                        <span>{backGroundTimer.sec}</span></span>
+                                    <br /><br /><br />
+                                    <br /><br /><br />
+
+                                    {/* Start and Stop Button */}
+
+                                    <div >
+                                        <button style={{ marginLeft: '40%' }} disabled={this.state.startButton.disabled} onClick={handleTimer}>Start</button>
+                                        <button style={{ marginLeft: '40%' }} disabled={this.state.pauseButton.disabled} onClick={(e)=>{this.handlePauseTimer(e)}}>Pause</button>
+                                        <button style={{ marginLeft: '40%' }} disabled={this.state.resumeButton.disabled}>Resume</button>
+                                        <br /><br /><br />
+                                        <button style={{ marginLeft: '40%' }} disabled >Stop</button>
+                                    </div>
+
+                                </span>
+
+                            </div>
+                        </Col>
+                        <Col sm={2}></Col>
+                    </Row>
+                </Container>
+
+            </React.Fragment>
+        )
+    }
+}
+export default Timer

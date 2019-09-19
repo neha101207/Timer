@@ -1,0 +1,15 @@
+
+ .circle {
+    width:50%;
+    height: 60vh;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    margin-top: 10%;
+  }
+  .time{
+    /* padding-left: 20%;
+    padding-top: 40%; */
+    margin-left: 40%;
+   
+  }
